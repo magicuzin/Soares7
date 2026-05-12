@@ -13,3 +13,5 @@ dev-server.err.log
 
 index.html
 /images/
+
+.vercel
