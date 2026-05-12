@@ -10,6 +10,12 @@ type TrackPayload = {
   path?: string;
   referrer?: string;
   params?: Record<string, string>;
+  currentParams?: Record<string, string>;
+  storedAt?: string;
+  updatedAt?: string;
+  firstUrl?: string;
+  lastUrl?: string;
+  usedStoredParams?: boolean;
 };
 
 const eventMessages: Record<TrackingEvent, string> = {
@@ -113,6 +119,31 @@ async function sendDiscordWebhook({
             {
               name: "Todos os parametros",
               value: formatParams(params),
+            },
+            {
+              name: "Origem dos parametros",
+              value: payload.usedStoredParams
+                ? "LocalStorage"
+                : "URL atual",
+              inline: true,
+            },
+            {
+              name: "Parametros atuais",
+              value: formatParams(payload.currentParams || {}),
+            },
+            {
+              name: "Primeira URL salva",
+              value: truncate(payload.firstUrl || "Nao salva"),
+            },
+            {
+              name: "Salvo em",
+              value: truncate(payload.storedAt || "Nao salvo", 250),
+              inline: true,
+            },
+            {
+              name: "Atualizado em",
+              value: truncate(payload.updatedAt || "Nao atualizado", 250),
+              inline: true,
             },
             {
               name: "URL",

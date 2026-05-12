@@ -3,8 +3,17 @@
 import { useEffect, type MouseEvent } from "react";
 
 const telegramUrl = "https://t.me/trampo7fxp";
+const storageKey = "soares7_tracking_params";
 
 type TrackingEvent = "visit" | "click";
+
+type StoredTrackingParams = {
+  params: Record<string, string>;
+  firstUrl: string;
+  lastUrl: string;
+  savedAt: string;
+  updatedAt: string;
+};
 
 declare global {
   interface Window {
@@ -23,13 +32,66 @@ function getParams() {
   return params;
 }
 
+function hasParams(params: Record<string, string>) {
+  return Object.keys(params).length > 0;
+}
+
+function readStoredParams(): StoredTrackingParams | null {
+  try {
+    const rawValue = window.localStorage.getItem(storageKey);
+
+    if (!rawValue) {
+      return null;
+    }
+
+    return JSON.parse(rawValue) as StoredTrackingParams;
+  } catch {
+    return null;
+  }
+}
+
+function getPersistedTrackingData(currentParams: Record<string, string>) {
+  const storedParams = readStoredParams();
+  const now = new Date().toISOString();
+
+  if (hasParams(currentParams)) {
+    const trackingData: StoredTrackingParams = {
+      params: currentParams,
+      firstUrl: storedParams?.firstUrl || window.location.href,
+      lastUrl: window.location.href,
+      savedAt: storedParams?.savedAt || now,
+      updatedAt: now,
+    };
+
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(trackingData));
+    } catch {
+      return trackingData;
+    }
+
+    return trackingData;
+  }
+
+  return storedParams;
+}
+
 function sendTrackingEvent(event: TrackingEvent) {
+  const currentParams = getParams();
+  const persistedTrackingData = getPersistedTrackingData(currentParams);
+  const params = persistedTrackingData?.params || currentParams;
+
   const payload = JSON.stringify({
     event,
     url: window.location.href,
     path: window.location.pathname,
     referrer: document.referrer,
-    params: getParams(),
+    params,
+    currentParams,
+    storedAt: persistedTrackingData?.savedAt,
+    updatedAt: persistedTrackingData?.updatedAt,
+    firstUrl: persistedTrackingData?.firstUrl,
+    lastUrl: persistedTrackingData?.lastUrl,
+    usedStoredParams: !hasParams(currentParams) && hasParams(params),
   });
 
   const blob = new Blob([payload], { type: "application/json" });
