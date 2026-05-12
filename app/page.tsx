@@ -1,3 +1,5 @@
+import { TelegramButton, VisitTracker } from "./tracking";
+
 const testimonials = [
   "/images/depoimento1.PNG",
   "/images/depoimento2.jpeg",
@@ -10,6 +12,7 @@ export default function Home() {
     <>
       <div className="page-bg" />
       <div className="page-overlay" />
+      <VisitTracker />
 
       <main className="page-content">
         <div className="top-alert">
@@ -29,14 +32,7 @@ export default function Home() {
 
           <p className="limited-access">GRUPO ABERTO POR TEMPO LIMITADO</p>
 
-          <a
-            href="https://t.me/trampo7fxp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-telegram"
-          >
-            Acessar o Telegram
-          </a>
+          <TelegramButton />
 
           <h2 className="section-title">
             ALGUNS FEEDBACKS DE HOJE &#128071;&#127996;&#128071;&#127996;
